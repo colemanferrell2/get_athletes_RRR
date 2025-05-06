@@ -1,0 +1,52 @@
+name: Update athlete-metadata folder
+
+on:
+  schedule:
+    - cron: "0 0 * * *" # Runs daily at midnight UTC
+  workflow_dispatch: # Allows manual triggering
+
+jobs:
+  update-athlete-metadata:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout public repository
+        uses: actions/checkout@v4
+
+      # Python setup steps kept but script execution removed
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # Python script execution step removed
+
+      - name: Clone private repository
+        run: |
+          git clone https://x-access-token:${{ secrets.PRIVATE_REPO_PAT }}@github.com/colemanferrell2/Runner-Recruiting-Resource.git private_repo
+
+      - name: Remove existing athlete-metadata folder
+        run: |
+          cd private_repo
+          git rm -rf data_process_scripts/athlete-metadata || echo "Folder doesn't exist or already removed"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git commit -m "Remove athlete-metadata folder" || echo "No changes to commit"
+
+      - name: Copy new athlete-metadata folder
+        run: |
+          mkdir -p private_repo/data_process_scripts/
+          cp -r athlete-metadata private_repo/data_process_scripts/ || echo "No athlete-metadata folder to copy"
+
+      - name: Commit and push changes to private repository
+        run: |
+          cd private_repo
+          git add data_process_scripts/athlete-metadata || echo "Nothing to add"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git commit -m "Update athlete-metadata folder" || echo "No changes to commit"
+          git push
