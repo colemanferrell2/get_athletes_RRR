@@ -1,0 +1,19 @@
+{
+    "id": "1200",
+    "name": "Coahoma",
+    "abbreviation": "COAH",
+    "city": "Coahoma",
+    "state": "TX",
+    "country": "USA",
+    "county": "Howard",
+    "type": "H",
+    "primaryColor": "#ff0000",
+    "secondaryColor": "#1e34dc",
+    "homepage": "https://www.coahomaisd.com/o/chs",
+    "phone": "432-394-5000",
+    "address": "600 North Main Street",
+    "zip": "79511",
+    "genre": "0",
+    "gender": "",
+    "profilePhotoUrl": "https://assets.sp.milesplit.com/team_logos/1200?v=1"
+}

@@ -1,0 +1,19 @@
+{
+    "id": "12123",
+    "name": "Shelby County",
+    "abbreviation": "SHCO",
+    "city": "Columbiana",
+    "state": "AL",
+    "country": "USA",
+    "county": "Shelby",
+    "type": "H",
+    "primaryColor": "#990000",
+    "secondaryColor": "#ffffff",
+    "homepage": "",
+    "phone": "(205) 682-6600",
+    "address": "101 Washington Street",
+    "zip": "35051",
+    "genre": "1",
+    "gender": "C",
+    "profilePhotoUrl": "https://assets.sp.milesplit.com/team_logos/12123?v=1"
+}

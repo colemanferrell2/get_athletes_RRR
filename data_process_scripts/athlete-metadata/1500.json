@@ -1,0 +1,29 @@
+{
+    "data": [],
+    "athlete": {
+        "id": "1500",
+        "siteSubdomain": "",
+        "firstName": "",
+        "lastName": "",
+        "slug": "",
+        "gender": "M",
+        "gradYear": "0",
+        "nickname": "",
+        "birthDate": "0000-00-00",
+        "birthYear": "0",
+        "note": "This is a blank spot created for boys relay teams.\r\n",
+        "honors": "",
+        "specialty": "",
+        "city": "",
+        "state": "",
+        "country": "USA",
+        "isProfilePhoto": "0",
+        "hide": "0",
+        "usatf": "",
+        "tfrrsId": "",
+        "lastTouch": "0",
+        "teamId": null,
+        "profileUrl": "https://www.milesplit.com/athletes/1500",
+        "profilePhotoUrl": ""
+    }
+}

@@ -1,0 +1,19 @@
+{
+    "id": "623",
+    "name": "Huntsville HS",
+    "abbreviation": "HNSV",
+    "city": "Huntsville",
+    "state": "AL",
+    "country": "USA",
+    "county": "Madison",
+    "type": "H",
+    "primaryColor": "#0000ff",
+    "secondaryColor": "#bf0000",
+    "homepage": "https://www.huntsvillehightrackfield.com/",
+    "phone": "(256) 428-8050",
+    "address": "2304 Billie Watkins Avenue",
+    "zip": "35801",
+    "genre": "1",
+    "gender": "C",
+    "profilePhotoUrl": "https://assets.sp.milesplit.com/team_logos/623?v=1"
+}

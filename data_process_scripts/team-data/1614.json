@@ -1,0 +1,19 @@
+{
+    "id": "1614",
+    "name": "Ferris",
+    "abbreviation": "FERR",
+    "city": "Ferris",
+    "state": "TX",
+    "country": "USA",
+    "county": "Ellis",
+    "type": "H",
+    "primaryColor": "#ff6a00",
+    "secondaryColor": "#000000",
+    "homepage": "https://fhs.ferrisisd.org/",
+    "phone": "972-544-3737",
+    "address": "1025 E 8th St",
+    "zip": "75125",
+    "genre": "0",
+    "gender": "",
+    "profilePhotoUrl": ""
+}

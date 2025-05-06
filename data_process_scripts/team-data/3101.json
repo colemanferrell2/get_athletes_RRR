@@ -1,0 +1,19 @@
+{
+    "id": "3101",
+    "name": "Northridge High School",
+    "abbreviation": "NRDG",
+    "city": "Tuscaloosa",
+    "state": "AL",
+    "country": "USA",
+    "county": "Tuscaloosa",
+    "type": "H",
+    "primaryColor": "#000000",
+    "secondaryColor": "#3cc8ff",
+    "homepage": "http://www.tusc.k12.al.us/",
+    "phone": "(205)759-3590",
+    "address": "2901 North Ridge Road",
+    "zip": "35406",
+    "genre": "1",
+    "gender": "C",
+    "profilePhotoUrl": "https://assets.sp.milesplit.com/team_logos/3101?v=1579878384"
+}

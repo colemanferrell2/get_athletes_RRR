@@ -1,0 +1,19 @@
+{
+    "id": "1100",
+    "name": "Uvalde",
+    "abbreviation": "UVAL",
+    "city": "Uvalde",
+    "state": "TX",
+    "country": "USA",
+    "county": "Uvalde",
+    "type": "H",
+    "primaryColor": "#660000",
+    "secondaryColor": "#ffffff",
+    "homepage": "https://www.ucisd.net/Domain/14",
+    "phone": "830-591-2950",
+    "address": " 1 Coyote Trail",
+    "zip": "78801",
+    "genre": "1",
+    "gender": "C",
+    "profilePhotoUrl": "https://assets.sp.milesplit.com/team_logos/1100?v=1"
+}
