@@ -1,4 +1,4 @@
-name: Update athlete-metadata folder
+name: Private Testing
 
 on:
   schedule:
