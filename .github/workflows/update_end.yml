@@ -40,7 +40,7 @@ jobs:
       - name: Copy new athlete-metadata folder
         run: |
           mkdir -p private_repo/data_process_scripts/
-          cp -r athlete-metadata private_repo/data_process_scripts/ || echo "No athlete-metadata folder to copy"
+          cp -r data_process_scripts/athlete-metadata private_repo/data_process_scripts/
 
       - name: Commit and push changes to private repository
         run: |
