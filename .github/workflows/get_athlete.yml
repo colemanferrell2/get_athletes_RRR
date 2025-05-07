@@ -32,7 +32,7 @@ jobs:
       - name: Remove existing athlete-metadata folder
         run: |
           cd private_repo
-          git rm -rf data_process_scripts/athlete-metadata
+          git rm -rf data_process_scripts/athlete-metadata || echo "Folder doesn't exist or already removed"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git commit -m "Remove athlete-metadata folder" || echo "No changes to commit"
@@ -40,13 +40,15 @@ jobs:
       - name: Copy new athlete-metadata folder
         run: |
           mkdir -p private_repo/data_process_scripts/
-          cp -r athlete-metadata private_repo/data_process_scripts/
+          cp -r data_process_scripts/athlete-metadata private_repo/data_process_scripts/
 
       - name: Commit and push changes to private repository
         run: |
           cd private_repo
-          git add data_process_scripts/athlete-metadata
+          git add data_process_scripts/athlete-metadata || echo "Nothing to add"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          git commit -m "Update athlete-metadata folder" || echo "No changes to commit"
+          git pushly.github.com"
           git commit -m "Update athlete-metadata folder" || echo "No changes to commit"
           git push
