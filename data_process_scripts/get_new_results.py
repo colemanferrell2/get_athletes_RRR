@@ -199,19 +199,21 @@ for athlete_id in athlete_numbers:
         print(f"Failed to parse JSON for athlete ID {athlete_id}.")
         continue
 
-    # Combine 'data' and 'athlete' into a single dictionary
-    output_content = {
-        "data": data,
-        "athlete": athlete
-    }
-
-    # Save the combined content to a file
-    output_file = os.path.join(athlete_metadata_dir, f"{athlete_id}.json")
-    with open(output_file, 'w') as file:
-        json.dump(output_content, file, indent=4)
-
-    time.sleep(1)  # Add a delay to avoid hitting API rate limits
-    print(f"Metadata for athlete ID {athlete_id} saved to '{output_file}'.")
+    grad_year = athlete.get("gradYear")
+    if grad_year and str(grad_year).isdigit() and int(grad_year) >= 2026:
+        output_content = {
+            "data": data,
+            "athlete": athlete
+        }
+        output_file = os.path.join(athlete_metadata_dir, f"{athlete_id}.json")
+        with open(output_file, 'w') as file:
+            json.dump(output_content, file, indent=4)
+        
+        time.sleep(1)  # ✅ Respect API rate limits
+        print(f"Metadata for athlete ID {athlete_id} saved to '{output_file}'.")
+    else:
+        time.sleep(1)  # ✅ Respect API rate limits
+        print(f"Skipped athlete ID {athlete_id} due to gradYear: {grad_year}")
 
 print("All athlete metadata has been fetched and saved.")
 
