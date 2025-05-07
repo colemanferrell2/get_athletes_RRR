@@ -200,7 +200,12 @@ for athlete_id in athlete_numbers:
         continue
 
     grad_year = athlete.get("gradYear")
-    if grad_year and str(grad_year).isdigit() and int(grad_year) >= 2026:
+    weighted_score = athlete.get("weightedScore", 0)  # Default to 0 if not present
+    
+    if (
+        grad_year and str(grad_year).isdigit() and int(grad_year) >= 2026
+        and isinstance(weighted_score, (int, float)) and weighted_score >= 60
+    ):
         output_content = {
             "data": data,
             "athlete": athlete
@@ -208,6 +213,7 @@ for athlete_id in athlete_numbers:
         output_file = os.path.join(athlete_metadata_dir, f"{athlete_id}.json")
         with open(output_file, 'w') as file:
             json.dump(output_content, file, indent=4)
+
         
         time.sleep(1)  # ✅ Respect API rate limits
         print(f"Metadata for athlete ID {athlete_id} saved to '{output_file}'.")
