@@ -57,7 +57,7 @@ jobs:
             git commit -m "Update athlete-metadata chunk" || echo "No changes in this chunk"
           done
 
-          git push https://x-access-token:${{ secrets.PRIVATE_REPO_PAT }}@github.com/colemanferrell2/Runner-Recruiting-Resource.git HEAD:main
+          git push https://x-access-token:${{ secrets.PRIVATE_REPO_PAT }}@github.com/colemanferrell2/Runner-Recruiting-Resource.git HEAD:master
 
           # Cleanup chunk files
           rm chunk_* files_to_commit.txt
