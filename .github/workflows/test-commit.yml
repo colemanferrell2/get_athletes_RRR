@@ -1,0 +1,26 @@
+name: Test Chunked Git Commit
+
+on:
+  workflow_dispatch:  # Manual trigger only
+
+jobs:
+  test-chunked-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone private repo
+        run: |
+          git clone https://x-access-token:${{ secrets.PRIVATE_REPO_PAT }}@github.com/colemanferrell2/Runner-Recruiting-Resource.git repo
+
+      - name: Commit and push in chunks
+        run: |
+          cd repo
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          find data_process_scripts/athlete-metadata -type f | split -l 250 - chunk_
+          for chunk in chunk_*; do
+            xargs -a "$chunk" git add
+            git commit -m "Test chunk commit" || echo "No changes in this chunk"
+          done
+          
+          git push https://x-access-token:${{ secrets.PRIVATE_REPO_PAT }}@github.com/colemanferrell2/Runner-Recruiting-Resource.git HEAD:main
