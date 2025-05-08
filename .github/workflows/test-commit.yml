@@ -16,11 +16,22 @@ jobs:
           cd repo
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          
-          find data_process_scripts/athlete-metadata -type f | split -l 250 - chunk_
+
+          # List all new files, save to temp file
+          find data_process_scripts/athlete-metadata -type f > files_to_commit.txt
+
+          # Split list into chunks
+          split -l 250 files_to_commit.txt chunk_
+
           for chunk in chunk_*; do
             xargs -a "$chunk" git add
-            git commit -m "Test chunk commit" || echo "No changes in this chunk"
+            git commit -m "Update athlete-metadata folder (chunk)" || echo "No changes in this chunk"
           done
+
+          git push https://x-access-token:${{ secrets.PRIVATE_REPO_PAT }}@github.com/colemanferrell2/Runner-Recruiting-Resource.git HEAD:main
+
+          # Optional: cleanup
+          rm chunk_* files_to_commit.txt
+
           
           git push https://x-access-token:${{ secrets.PRIVATE_REPO_PAT }}@github.com/colemanferrell2/Runner-Recruiting-Resource.git HEAD:main
