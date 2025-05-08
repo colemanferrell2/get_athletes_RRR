@@ -97,7 +97,7 @@ for state in states:
 
     # Add a one-minute delay after processing each state
     print(f"Finished processing state: {state.upper()}. Waiting for 1 minute before the next state...")
-    time.sleep(1)
+    time.sleep(2)
 
 # Write the unique meet numbers to the file
 with open(output_file, 'w') as file:
@@ -139,7 +139,7 @@ for meet_number in meet_numbers:
     output_file = os.path.join(meet_data_dir, f"{meet_number}.json")
     with open(output_file, 'w') as file:
         file.write(response.text)
-
+    time.sleep(1)
     print(f"Data for meet number {meet_number} saved to '{output_file}'.")
 
 print("All meet data has been fetched and saved.")
