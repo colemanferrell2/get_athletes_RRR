@@ -204,7 +204,7 @@ for athlete_id in athlete_numbers:
     
     if (
         grad_year and str(grad_year).isdigit() and int(grad_year) >= 2026
-        and isinstance(weighted_score, (int, float)) and weighted_score >= 60
+        and isinstance(weighted_score, (int, float)) and weighted_score >= 0
     ):
         output_content = {
             "data": data,
