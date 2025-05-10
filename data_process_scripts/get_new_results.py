@@ -93,9 +93,10 @@ for state in states:
             print(f"✅ Found meet on {meet_date.strftime('%Y-%m-%d')} with link: {a_tag['href']}")
 
 
-            # Check if the date is within one week of the current date
-            if not (current_date - timedelta(days=1) <= meet_date <= current_date + timedelta(days=1)):
+            if not (current_date.date() - timedelta(days=1) <= meet_date.date() <= current_date.date() + timedelta(days=1)):
+                print(f"⏭️ Skipping meet on {meet_date.date()} (outside date range)")
                 continue
+
 
             # Extract the meet link
             link_cell = row.find('td', class_='name')
