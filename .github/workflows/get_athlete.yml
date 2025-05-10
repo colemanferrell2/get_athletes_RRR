@@ -10,7 +10,6 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       timestamp: ${{ steps.timestamp.outputs.now }}
-
     steps:
       - name: Checkout public repository
         uses: actions/checkout@v4
@@ -35,10 +34,9 @@ jobs:
   fetch-athletes:
     needs: get-new-results
     runs-on: ubuntu-latest
-      strategy:
-        matrix:
-          shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
-
+    strategy:
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
     steps:
       - uses: actions/checkout@v4
 
@@ -51,12 +49,11 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Fetch athlete metadata (sharded)
-        run: python data_process_scripts/get_new_results.py --shard ${{ matrix.shard }} --num_shards 4
+        run: python data_process_scripts/get_new_results.py --shard ${{ matrix.shard }} --num_shards 20
 
   push-athletes:
     needs: fetch-athletes
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout public repository
         uses: actions/checkout@v4
