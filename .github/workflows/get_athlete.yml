@@ -2,12 +2,14 @@ name: Update athlete-metadata folder
 
 on:
   schedule:
-    - cron: "0 7 * * *"  # Runs daily at 3AM ET / 7AM UTC
-  workflow_dispatch:      # Allows manual triggering
+    - cron: "0 7 * * *"  # Daily at 3AM ET / 7AM UTC
+  workflow_dispatch:
 
 jobs:
-  update-athlete-metadata:
+  get-new-results:
     runs-on: ubuntu-latest
+    outputs:
+      timestamp: ${{ steps.timestamp.outputs.now }}
 
     steps:
       - name: Checkout public repository
@@ -25,6 +27,39 @@ jobs:
 
       - name: Run get_new_results.py
         run: python data_process_scripts/get_new_results.py
+
+      - name: Save timestamp
+        id: timestamp
+        run: echo "now=$(date +%s)" >> $GITHUB_OUTPUT
+
+  fetch-athletes:
+    needs: get-new-results
+    runs-on: ubuntu-latest
+      strategy:
+        matrix:
+          shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Fetch athlete metadata (sharded)
+        run: python data_process_scripts/get_new_results.py --shard ${{ matrix.shard }} --num_shards 4
+
+  push-athletes:
+    needs: fetch-athletes
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout public repository
+        uses: actions/checkout@v4
 
       - name: Clone private repository
         run: |
@@ -59,7 +94,6 @@ jobs:
 
           git push https://x-access-token:${{ secrets.PRIVATE_REPO_PAT }}@github.com/colemanferrell2/Runner-Recruiting-Resource.git HEAD:master
 
-          # Cleanup chunk files
           rm chunk_* files_to_commit.txt
 
       - name: Trigger assign_scores workflow in private repo
