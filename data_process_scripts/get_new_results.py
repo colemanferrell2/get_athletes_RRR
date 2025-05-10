@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 import glob
 import time  # Import time for adding delays
 import shutil  # Add this to the top if not already
-
+print(f"📅 Current system date and time: {datetime.now()}")
 # Remove all files except this script from the data_process_scripts directory
 script_dir = os.path.dirname(os.path.abspath(__file__))
 current_script = os.path.basename(__file__)
