@@ -40,7 +40,7 @@ output_file = os.path.join(script_dir, 'meet-numbers')
 meet_numbers = set()
 
 # Current date
-current_date = datetime.now()
+current_date = datetime.now().date()
 
 for state in states:
     # Construct the URL for the state
@@ -70,22 +70,32 @@ for state in states:
             # Parse the date
             try:
                 date_text = date_cell.text.strip()
-                # Clean the date text by replacing newlines and extra spaces
+                # Clean the date text
                 date_text = re.sub(r'\s+', ' ', date_text).strip()
-                # Handle ranges like "3/28-3/29" or "3/28 3/29"
+                
+                # Handle date ranges (e.g., "5/8-5/9" or "5/8 5/9")
                 if '-' in date_text or ' ' in date_text:
-                    # Split the range and take the second (last) date
-                    date_text = re.split(r'[-\s]', date_text)[-1]
+                    date_parts = re.split(r'[-\s]', date_text)
+                    # Always take the most recent date in the range
+                    date_text = date_parts[-1]
+                
+                # Parse date and convert to date object (no time)
                 meet_date = datetime.strptime(date_text, "%m/%d")
-                # Adjust the year to the current year
-                meet_date = meet_date.replace(year=current_date.year)
+                meet_date = meet_date.replace(year=current_date.year).date()  # Convert to date object
             except ValueError:
                 print(f"Failed to parse date: {date_cell.text.strip()}")
                 continue
 
-            # Check if the date is within one week of the current date
-            if not (current_date - timedelta(days=2) <= meet_date <= current_date + timedelta(days=1)):
+            # Get current date as date object (no time)
+            current_date_date = current_date.date()  # If current_date was datetime, convert to date
+            
+            # Debug print to verify dates
+            print(f"Checking: {meet_date} (Range: {current_date_date - timedelta(days=2)} to {current_date_date + timedelta(days=1})")
+            
+            # Check date range using date objects
+            if not (current_date_date - timedelta(days=1) <= meet_date <= current_date_date + timedelta(days=1)):
                 continue
+
 
             # Extract the meet link
             link_cell = row.find('td', class_='name')
