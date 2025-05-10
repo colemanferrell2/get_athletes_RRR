@@ -8,6 +8,7 @@ import glob
 import time
 import shutil
 import argparse
+import pytz  # Added for timezone handling
 
 # ========================
 # Configuration and Setup
@@ -23,6 +24,9 @@ args = parser.parse_args()
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 current_script = os.path.basename(__file__)
+
+# Set timezone to Eastern Time
+eastern = pytz.timezone('US/Eastern')
 
 # ========================
 # Common Functions
@@ -57,7 +61,7 @@ def collect_initial_data():
 
     # Meet number collection
     meet_numbers = set()
-    current_date = datetime.now().date()
+    current_date = datetime.now(eastern).date()  # Get current date in Eastern Time
     
     for state in states:
         url = f"https://{state}.milesplit.com/results"
