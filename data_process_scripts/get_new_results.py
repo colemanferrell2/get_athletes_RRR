@@ -84,7 +84,7 @@ for state in states:
                 continue
 
             # Check if the date is within one week of the current date
-            if not (current_date - timedelta(days=1) <= meet_date <= current_date + timedelta(days=1)):
+            if not (current_date - timedelta(days=2) <= meet_date <= current_date + timedelta(days=1)):
                 continue
 
             # Extract the meet link
