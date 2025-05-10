@@ -90,7 +90,7 @@ for state in states:
             current_date_date = current_date.date()  # If current_date was datetime, convert to date
             
             # Debug print to verify dates
-            print(f"Checking: {meet_date} (Range: {current_date_date - timedelta(days=2)} to {current_date_date + timedelta(days=1})")
+            print(f"Checking: {meet_date} (Range: {current_date - timedelta(days=1)} to {current_date + timedelta(days=1)})")
             
             # Check date range using date objects
             if not (current_date_date - timedelta(days=1) <= meet_date <= current_date_date + timedelta(days=1)):
