@@ -6,24 +6,24 @@ import json  # Import to handle JSON data
 from datetime import datetime, timedelta
 import glob
 import time  # Import time for adding delays
-import shutil  # Add this to the top if not already
-print(f"📅 Current system date and time: {datetime.now()}")
+
+
 # Remove all files except this script from the data_process_scripts directory
 script_dir = os.path.dirname(os.path.abspath(__file__))
 current_script = os.path.basename(__file__)
 
 for file_name in os.listdir(script_dir):
     file_path = os.path.join(script_dir, file_name)
-    if file_name != current_script:
+    if file_name != current_script and os.path.isfile(file_path):
         try:
-            if os.path.isfile(file_path):
-                os.remove(file_path)
-                print(f"Removed file: {file_path}")
-            elif os.path.isdir(file_path):
-                shutil.rmtree(file_path)
-                print(f"Removed folder: {file_path}")
+            os.remove(file_path)
+            print(f"Removed file: {file_path}")
+
+
+
+
         except Exception as e:
-            print(f"Failed to remove {file_path}. Error: {e}")
+            print(f"Failed to remove file: {file_path}. Error: {e}")
 
 
 # List of two-letter state abbreviations
@@ -68,35 +68,24 @@ for state in states:
                 continue
 
             # Parse the date
-            # Extract the date text
-            date_text_raw = date_cell.text.strip()
-            date_text_clean = re.sub(r'\s+', ' ', date_text_raw)
-            
-            # Extract last date in a range (like "5/10 - 5/11" or "5/10 5/11")
-            if '-' in date_text_clean or ' ' in date_text_clean:
-                date_text_split = re.split(r'[-\s]', date_text_clean)
-                date_text_clean = date_text_split[-1]
-            
             try:
-                # Parse the cleaned date
-                meet_date = datetime.strptime(date_text_clean, "%m/%d").replace(year=current_date.year)
+                date_text = date_cell.text.strip()
+                # Clean the date text by replacing newlines and extra spaces
+                date_text = re.sub(r'\s+', ' ', date_text).strip()
+                # Handle ranges like "3/28-3/29" or "3/28 3/29"
+                if '-' in date_text or ' ' in date_text:
+                    # Split the range and take the second (last) date
+                    date_text = re.split(r'[-\s]', date_text)[-1]
+                meet_date = datetime.strptime(date_text, "%m/%d")
+                # Adjust the year to the current year
+                meet_date = meet_date.replace(year=current_date.year)
             except ValueError:
-                print(f"❌ Failed to parse date: raw='{date_text_raw}', cleaned='{date_text_clean}'")
+                print(f"Failed to parse date: {date_cell.text.strip()}")
                 continue
-            
-            # Check if the date is in range
+
+            # Check if the date is within one week of the current date
             if not (current_date - timedelta(days=1) <= meet_date <= current_date + timedelta(days=1)):
-                print(f"⏭️ Skipping meet on {meet_date.strftime('%Y-%m-%d')} (outside date range)")
                 continue
-            
-            # If we make it this far, we’re keeping the meet — print meet info
-            print(f"✅ Found meet on {meet_date.strftime('%Y-%m-%d')} with link: {a_tag['href']}")
-
-
-            if not (current_date.date() - timedelta(days=1) <= meet_date.date() <= current_date.date() + timedelta(days=1)):
-                print(f"⏭️ Skipping meet on {meet_date.date()} (outside date range)")
-                continue
-
 
             # Extract the meet link
             link_cell = row.find('td', class_='name')
@@ -185,10 +174,10 @@ with open(athlete_numbers_file, 'w') as file:
         file.write(str(athlete_id) + '\n')
 
 print(f"All unique athlete IDs saved to '{athlete_numbers_file}'.")
-# After writing the athlete-numbers file
-with open(athlete_numbers_file, 'r') as f:
-    num_lines = sum(1 for _ in f)
-print(f"Number of athlete IDs saved: {num_lines}")
+
+
+
+
 
 # Directory to save the athlete metadata files
 athlete_metadata_dir = os.path.join(script_dir, 'athlete-metadata')
@@ -222,7 +211,7 @@ for athlete_id in athlete_numbers:
 
     grad_year = athlete.get("gradYear")
     weighted_score = athlete.get("weightedScore", 0)  # Default to 0 if not present
-    
+
     if (
         grad_year and str(grad_year).isdigit() and int(grad_year) >= 2026
         and isinstance(weighted_score, (int, float)) and weighted_score >= 0
@@ -235,7 +224,7 @@ for athlete_id in athlete_numbers:
         with open(output_file, 'w') as file:
             json.dump(output_content, file, indent=4)
 
-        
+
         time.sleep(1)  # ✅ Respect API rate limits
         print(f"Metadata for athlete ID {athlete_id} saved to '{output_file}'.")
     else:
