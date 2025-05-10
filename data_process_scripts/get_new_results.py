@@ -105,7 +105,8 @@ def collect_initial_data():
     meet_data_dir = os.path.join(script_dir, 'meet-data')
     os.makedirs(meet_data_dir, exist_ok=True)
     
-    with open('meet-numbers', 'r') as f:
+    meet_numbers_path = os.path.join(script_dir, 'meet-numbers')
+    with open(meet_numbers_path, 'r') as f:
         meets = [line.strip() for line in f]
     
     api_url_template = (
