@@ -6,25 +6,25 @@ import json  # Import to handle JSON data
 from datetime import datetime, timedelta
 import glob
 import time  # Import time for adding delays
+import shutil
 
-
-# Remove all files except this script from the data_process_scripts directory
 script_dir = os.path.dirname(os.path.abspath(__file__))
 current_script = os.path.basename(__file__)
 
 for file_name in os.listdir(script_dir):
     file_path = os.path.join(script_dir, file_name)
-    if file_name != current_script and os.path.isfile(file_path):
-        try:
+    # Skip the current script itself
+    if file_name == current_script:
+        continue
+    try:
+        if os.path.isfile(file_path):
             os.remove(file_path)
             print(f"Removed file: {file_path}")
-
-
-
-
-        except Exception as e:
-            print(f"Failed to remove file: {file_path}. Error: {e}")
-
+        elif os.path.isdir(file_path):
+            shutil.rmtree(file_path)  # Removes directory and all its contents
+            print(f"Removed folder: {file_path}")
+    except Exception as e:
+        print(f"Failed to remove {file_path}. Error: {e}")
 
 # List of two-letter state abbreviations
 states = [
@@ -182,9 +182,9 @@ with open(athlete_numbers_file, 'w') as file:
 
 print(f"All unique athlete IDs saved to '{athlete_numbers_file}'.")
 
-
-
-
+with open(athlete_numbers_file, 'r') as file:
+    num_athletes = sum(1 for _ in file)
+print(f"Total number of athletes: {num_athletes}")
 
 # Directory to save the athlete metadata files
 athlete_metadata_dir = os.path.join(script_dir, 'athlete-metadata')
