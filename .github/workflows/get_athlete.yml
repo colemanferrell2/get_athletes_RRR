@@ -17,15 +17,15 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.9"
+          python-version: "3.10"  # Updated to match your script's requirements
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run get_new_results.py
-        run: python data_process_scripts/get_new_results.py
+      - name: Collect initial data
+        run: python data_process_scripts/get_new_results.py --mode collect  # Added mode
 
       - name: Save timestamp
         id: timestamp
@@ -43,13 +43,13 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.9"
+          python-version: "3.10"  # Updated version
 
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Fetch athlete metadata (sharded)
-        run: python data_process_scripts/get_new_results.py --shard ${{ matrix.shard }} --num_shards 20
+      - name: Process shard ${{ matrix.shard }}
+        run: python data_process_scripts/get_new_results.py --mode process --shard ${{ matrix.shard }} --num_shards 20  # Added mode
 
   push-athletes:
     needs: fetch-athletes
@@ -93,7 +93,7 @@ jobs:
 
           rm chunk_* files_to_commit.txt
 
-      - name: Trigger assign_scores workflow in private repo
+      - name: Trigger assign_scores workflow
         run: |
           curl -X POST \
             -H "Accept: application/vnd.github.v3+json" \
