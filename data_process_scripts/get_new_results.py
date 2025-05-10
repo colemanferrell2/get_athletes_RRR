@@ -7,6 +7,12 @@ from datetime import datetime, timedelta
 import glob
 import time  # Import time for adding delays
 import shutil
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--shard', type=int, default=0)
+parser.add_argument('--num_shards', type=int, default=1)
+args = parser.parse_args()
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 current_script = os.path.basename(__file__)
@@ -190,9 +196,11 @@ print(f"Total number of athletes: {num_athletes}")
 athlete_metadata_dir = os.path.join(script_dir, 'athlete-metadata')
 os.makedirs(athlete_metadata_dir, exist_ok=True)  # Create the folder if it doesn't exist
 
-# Read athlete numbers from the athlete-numbers file
 with open(athlete_numbers_file, 'r') as file:
-    athlete_numbers = [line.strip() for line in file.readlines()]
+    all_athletes = [line.strip() for line in file.readlines()]
+
+# Filter athletes for this shard
+athlete_numbers = [id for i, id in enumerate(all_athletes) if i % args.num_shards == args.shard]
 
 # Fetch metadata for each athlete and save it to a file
 for athlete_id in athlete_numbers:
