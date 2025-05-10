@@ -68,20 +68,30 @@ for state in states:
                 continue
 
             # Parse the date
+            # Extract the date text
+            date_text_raw = date_cell.text.strip()
+            date_text_clean = re.sub(r'\s+', ' ', date_text_raw)
+            
+            # Extract last date in a range (like "5/10 - 5/11" or "5/10 5/11")
+            if '-' in date_text_clean or ' ' in date_text_clean:
+                date_text_split = re.split(r'[-\s]', date_text_clean)
+                date_text_clean = date_text_split[-1]
+            
             try:
-                date_text = date_cell.text.strip()
-                # Clean the date text by replacing newlines and extra spaces
-                date_text = re.sub(r'\s+', ' ', date_text).strip()
-                # Handle ranges like "3/28-3/29" or "3/28 3/29"
-                if '-' in date_text or ' ' in date_text:
-                    # Split the range and take the second (last) date
-                    date_text = re.split(r'[-\s]', date_text)[-1]
-                meet_date = datetime.strptime(date_text, "%m/%d")
-                # Adjust the year to the current year
-                meet_date = meet_date.replace(year=current_date.year)
+                # Parse the cleaned date
+                meet_date = datetime.strptime(date_text_clean, "%m/%d").replace(year=current_date.year)
             except ValueError:
-                print(f"Failed to parse date: {date_cell.text.strip()}")
+                print(f"❌ Failed to parse date: raw='{date_text_raw}', cleaned='{date_text_clean}'")
                 continue
+            
+            # Check if the date is in range
+            if not (current_date - timedelta(days=1) <= meet_date <= current_date + timedelta(days=1)):
+                print(f"⏭️ Skipping meet on {meet_date.strftime('%Y-%m-%d')} (outside date range)")
+                continue
+            
+            # If we make it this far, we’re keeping the meet — print meet info
+            print(f"✅ Found meet on {meet_date.strftime('%Y-%m-%d')} with link: {a_tag['href']}")
+
 
             # Check if the date is within one week of the current date
             if not (current_date - timedelta(days=1) <= meet_date <= current_date + timedelta(days=1)):
