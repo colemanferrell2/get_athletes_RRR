@@ -89,7 +89,7 @@ def collect_initial_data():
                 except ValueError:
                     continue
 
-                if not (current_date - timedelta(days=1) <= meet_date <= current_date + timedelta(days=1)):
+                if not (current_date - timedelta(days=3) <= meet_date <= current_date + timedelta(days=1)):
                     continue
 
                 link_cell = row.find('td', class_='name')
@@ -98,7 +98,9 @@ def collect_initial_data():
                     if a_tag:
                         match = re.search(r'meets/(\d+)-', a_tag['href'])
                         if match:
-                            meet_numbers.add(match.group(1))
+                             meet_number = match.group(1)
+                             meet_numbers.add(meet_number)
+                             print(f"Collected meet number: {meet_number}")
         
         time.sleep(2)
 
