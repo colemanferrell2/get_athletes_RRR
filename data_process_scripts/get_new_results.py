@@ -148,23 +148,24 @@ def collect_initial_data():
 
 
 # Athlete ID extraction
+# Athlete ID extraction
 athlete_ids = set()
 for meet_file in glob.glob(os.path.join(meet_data_dir, '*.json')):
-     try:
-         with open(meet_file, 'r') as f:
-             data = json.load(f)
-             performances = data.get('data', [])
-             print(f"{meet_file}: {len(performances)} performances")
- 
-             for performance in performances:
-                 athlete_id = performance.get('athleteId')
-                 if athlete_id:
-                     print(f"  → Found athlete: {athlete_id}")
-                     athlete_ids.add(athlete_id)
-                 else:
-                     print("  → Skipped performance with missing athleteId")
-     except (json.JSONDecodeError, KeyError) as e:
-         print(f"❌ Error reading {meet_file}: {e}")
+    try:
+        with open(meet_file, 'r') as f:
+            data = json.load(f)
+            performances = data.get('data', [])
+            print(f"{meet_file}: {len(performances)} performances")
+
+            for performance in performances:
+                athlete_id = performance.get('athleteId')
+                if athlete_id:
+                    print(f"  → Found athlete: {athlete_id}")
+                    athlete_ids.add(athlete_id)
+                else:
+                    print("  → Skipped performance with missing athleteId")
+    except (json.JSONDecodeError, KeyError) as e:
+        print(f"❌ Error reading {meet_file}: {e}")
 
     with open(os.path.join(script_dir, 'athlete-numbers'), 'w') as f:
             f.writelines(f"{id}\n" for id in sorted(athlete_ids))
