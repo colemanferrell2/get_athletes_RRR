@@ -127,10 +127,25 @@ def collect_initial_data():
     for meet in meets:
         api_url = api_url_template.format(meet)
         response = requests.get(api_url)
+        
+        print(f"Fetching meet {meet}... status code: {response.status_code}")
+        
         if response.status_code == 200:
+            try:
+                data = response.json()
+                num_performances = len(data.get("data", []))
+                print(f"  → Found {num_performances} performances for meet {meet}")
+            except json.JSONDecodeError as e:
+                print(f"  → Error decoding JSON for meet {meet}: {e}")
+                continue
+            
             with open(os.path.join(meet_data_dir, f"{meet}.json"), 'w') as f:
                 f.write(response.text)
+        else:
+            print(f"  → Failed to fetch meet {meet}: {response.status_code}")
+        
         time.sleep(1)
+
 
     # Athlete ID extraction
     athlete_ids = set()
