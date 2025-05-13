@@ -154,7 +154,8 @@ def process_shard():
     # Athlete metadata processing
     with open(os.path.join(script_dir, 'athlete-numbers'), 'r') as f:
         all_athletes = [line.strip() for line in f]
-    
+    print("List of all athletes:", all_athletes)
+  
     athletes = [id for i, id in enumerate(all_athletes) 
                if i % args.num_shards == args.shard]
     
