@@ -147,20 +147,28 @@ def collect_initial_data():
         time.sleep(1)
 
 
-    # Athlete ID extraction
-    athlete_ids = set()
-    for meet_file in glob.glob(os.path.join(meet_data_dir, '*.json')):
-        try:
-            with open(meet_file, 'r') as f:
-                data = json.load(f)
-                for performance in data.get('data', []):
-                    if athlete_id := performance.get('athleteId'):
-                        athlete_ids.add(athlete_id)
-        except (json.JSONDecodeError, KeyError):
-            continue
+# Athlete ID extraction
+  athlete_ids = set()
+  for meet_file in glob.glob(os.path.join(meet_data_dir, '*.json')):
+      try:
+          with open(meet_file, 'r') as f:
+              data = json.load(f)
+              performances = data.get('data', [])
+              print(f"{meet_file}: {len(performances)} performances")
+  
+              for performance in performances:
+                  athlete_id = performance.get('athleteId')
+                  if athlete_id:
+                      print(f"  → Found athlete: {athlete_id}")
+                      athlete_ids.add(athlete_id)
+                  else:
+                      print("  → Skipped performance with missing athleteId")
+      except (json.JSONDecodeError, KeyError) as e:
+          print(f"❌ Error reading {meet_file}: {e}")
+
 
     with open(os.path.join(script_dir, 'athlete-numbers'), 'w') as f:
-        f.writelines(sorted(str(id) for id in athlete_ids))
+            f.writelines(f"{id}\n" for id in sorted(athlete_ids))
 
 # ========================
 # Sharded Processing
@@ -197,22 +205,14 @@ def process_shard():
                 grad_year = athlete.get("gradYear")
                 weighted_score = athlete.get("weightedScore", 0)
                 
-                if (
-                    grad_year and 
-                    str(grad_year).isdigit() and 
-                    int(grad_year) >= 2026 and
-                    isinstance(weighted_score, (int, float)) and 
-                    weighted_score >= 0
-                ):
-                    output_content = {
-                        "data": response_json.get('data', []),
-                        "athlete": athlete
-                    }
-                    output_file = os.path.join(athlete_dir, f"{athlete_id}.json")
-                    with open(output_file, 'w') as f:
-                        json.dump(output_content, f, indent=4)
-                else:
-                    print(f"Skipped athlete ID {athlete_id} due to gradYear: {grad_year}")
+                output_content = {
+                    "data": response_json.get('data', []),
+                    "athlete": athlete
+                }
+                output_file = os.path.join(athlete_dir, f"{athlete_id}.json")
+                with open(output_file, 'w') as f:
+                    json.dump(output_content, f, indent=4)
+
                 
             except json.JSONDecodeError:
                 print(f"Failed to parse JSON for athlete ID {athlete_id}")
