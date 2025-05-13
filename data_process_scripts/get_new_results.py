@@ -105,7 +105,7 @@ def collect_initial_data():
         time.sleep(2)
 
     with open(os.path.join(script_dir, 'meet-numbers'), 'w') as f:
-        f.writelines(sorted(meet_numbers))
+        f.writelines(f"{m}\n" for m in sorted(meet_numbers))
 
     # Meet data processing
     meet_data_dir = os.path.join(script_dir, 'meet-data')
