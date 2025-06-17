@@ -181,16 +181,19 @@ def process_shard():
     with open(os.path.join(script_dir, 'athlete-numbers'), 'r') as f:
         all_athletes = [line.strip() for line in f]
     print("List of all athletes:", all_athletes)
-  
-    athletes = [id for i, id in enumerate(all_athletes) 
-               if i % args.num_shards == args.shard]
-    
+
+    athletes = [
+        athlete_id for i, athlete_id in enumerate(all_athletes)
+        if i % args.num_shards == args.shard
+    ]
+
     athlete_dir = os.path.join(script_dir, 'athlete-metadata')
     os.makedirs(athlete_dir, exist_ok=True)
 
     for athlete_id in athletes:
         athlete_url = (
-            f"https://www.milesplit.com/api/v1/athletes/{athlete_id}/stats?ismeetpro=0&fields="
+            "https://www.milesplit.com/api/v1/athletes/"
+            f"{athlete_id}/stats?ismeetpro=0&fields="
             "id,meetId,meetName,teamId,videoId,teamName,athleteId,firstName,lastName,gender,genderName,"
             "divisionId,divisionName,meetResultsDivisionId,resultsDivisionId,ageGroupName,gradYear,"
             "eventName,eventCode,eventDistance,eventGenreOrder,round,roundName,heat,units,mark,place,"
@@ -199,42 +202,42 @@ def process_shard():
             "birthDate,birthYear,note,honors,specialty,city,state,country,isProfilePhoto,hide,usatf,"
             "tfrrsId,lastTouch,profilePhotoUrl"
         )
-        
-      print(f"🔍 Processing athlete ID: {athlete_id}")
-      response = requests.get(athlete_url)
-        
-      if response.status_code != 200:
-          print(f"❌ HTTP {response.status_code} for athlete ID {athlete_id}")
-          continue
-        
-      try:
-          response_json = response.json()
-      except json.JSONDecodeError:
-          print(f"❌ JSON decode error for athlete ID {athlete_id}")
-          continue
-        
-      # Check if athlete data exists
-      athlete = response_json.get('_embedded', {}).get('athlete', {})
-      if not athlete:
-          print(f"⚠️ No athlete object found in response for {athlete_id}")
-          continue
-        
-      # Optional: check for missing key fields
-      if "gradYear" not in athlete:
-          print(f"⚠️ Missing gradYear for athlete {athlete_id}")
-        
-      # Save file
-      output_content = {
-          "data": response_json.get('data', []),
-          "athlete": athlete
-      }
-      output_file = os.path.join(athlete_dir, f"{athlete_id}.json")
-      with open(output_file, 'w') as f:
-          json.dump(output_content, f, indent=4)
-        
-      print(f"✅ Saved athlete {athlete_id}")
 
-      time.sleep(1)
+        print(f"🔍 Processing athlete ID: {athlete_id}")
+        response = requests.get(athlete_url)
+
+        if response.status_code != 200:
+            print(f"❌ HTTP {response.status_code} for athlete ID {athlete_id}")
+            continue
+
+        try:
+            response_json = response.json()
+        except json.JSONDecodeError:
+            print(f"❌ JSON decode error for athlete ID {athlete_id}")
+            continue
+
+        # Check if athlete data exists
+        athlete = response_json.get('_embedded', {}).get('athlete', {})
+        if not athlete:
+            print(f"⚠️ No athlete object found in response for {athlete_id}")
+            continue
+
+        # Optional: check for missing key fields
+        if "gradYear" not in athlete:
+            print(f"⚠️ Missing gradYear for athlete {athlete_id}")
+
+        # Save file
+        output_content = {
+            "data": response_json.get('data', []),
+            "athlete": athlete
+        }
+        output_file = os.path.join(athlete_dir, f"{athlete_id}.json")
+        with open(output_file, 'w') as f:
+            json.dump(output_content, f, indent=4)
+
+        print(f"✅ Saved athlete {athlete_id}")
+
+        time.sleep(1)
 
     # Team data processing
     team_ids = set()
