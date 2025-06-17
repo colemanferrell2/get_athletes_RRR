@@ -26,6 +26,15 @@ jobs:
 
       - name: Collect initial data
         run: python data_process_scripts/get_new_results.py --mode collect  # Added mode
+        
+      - name: Commit meet-data to public repo
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git pull origin main  # Ensure it's up to date
+          git add data_process_scripts/meet-data
+          git commit -m "Update meet-data files" || echo "No changes to commit"
+          git push origin HEAD:main
 
       - name: Save timestamp
         id: timestamp
