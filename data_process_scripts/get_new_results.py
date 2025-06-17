@@ -200,25 +200,40 @@ def process_shard():
             "tfrrsId,lastTouch,profilePhotoUrl"
         )
         
+       print(f"🔍 Processing athlete ID: {athlete_id}")
         response = requests.get(athlete_url)
-        if response.status_code == 200:
-            try:
-                response_json = response.json()
-                athlete = response_json.get('_embedded', {}).get('athlete', {})
-                grad_year = athlete.get("gradYear")
-                weighted_score = athlete.get("weightedScore", 0)
-                
-                output_content = {
-                    "data": response_json.get('data', []),
-                    "athlete": athlete
-                }
-                output_file = os.path.join(athlete_dir, f"{athlete_id}.json")
-                with open(output_file, 'w') as f:
-                    json.dump(output_content, f, indent=4)
+        
+        if response.status_code != 200:
+            print(f"❌ HTTP {response.status_code} for athlete ID {athlete_id}")
+            continue
+        
+        try:
+            response_json = response.json()
+        except json.JSONDecodeError:
+            print(f"❌ JSON decode error for athlete ID {athlete_id}")
+            continue
+        
+        # Check if athlete data exists
+        athlete = response_json.get('_embedded', {}).get('athlete', {})
+        if not athlete:
+            print(f"⚠️ No athlete object found in response for {athlete_id}")
+            continue
+        
+        # Optional: check for missing key fields
+        if "gradYear" not in athlete:
+            print(f"⚠️ Missing gradYear for athlete {athlete_id}")
+        
+        # Save file
+        output_content = {
+            "data": response_json.get('data', []),
+            "athlete": athlete
+        }
+        output_file = os.path.join(athlete_dir, f"{athlete_id}.json")
+        with open(output_file, 'w') as f:
+            json.dump(output_content, f, indent=4)
+        
+        print(f"✅ Saved athlete {athlete_id}")
 
-                
-            except json.JSONDecodeError:
-                print(f"Failed to parse JSON for athlete ID {athlete_id}")
         time.sleep(1)
 
     # Team data processing
