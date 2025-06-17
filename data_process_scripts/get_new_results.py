@@ -68,7 +68,7 @@ def collect_initial_data():
         response = requests.get(url)
         if response.status_code != 200:
             continue
-        
+          
         soup = BeautifulSoup(response.text, 'html.parser')
         table = soup.find('table', class_='meets order-table table results')
         
@@ -77,19 +77,21 @@ def collect_initial_data():
                 date_cell = row.find('td', class_='date')
                 if not date_cell:
                     continue
-
-                try:
-                    date_text = re.sub(r'\s+', ' ', date_cell.text.strip())
-                    if '-' in date_text or ' ' in date_text:
-                        date_parts = re.split(r'[-\s]', date_text)
-                        date_text = date_parts[-1]
-                    
-                    meet_date = datetime.strptime(date_text, "%m/%d")
-                    meet_date = meet_date.replace(year=current_date.year).date()
-                except ValueError:
+        
+                # Try end date first, fallback to start date
+                date_span = date_cell.find('span', class_='end') or date_cell.find('span', class_='start')
+                if not date_span:
                     continue
-
-                if not (current_date - timedelta(days=3) <= meet_date <= current_date + timedelta(days=1)):
+        
+                try:
+                    date_text = date_span.text.strip()  # e.g., "6/14"
+                    parsed_date = datetime.strptime(date_text, "%m/%d").replace(year=current_date.year).date()
+        
+                    # Keep only meets within 3 days (past or future)
+                    if abs((parsed_date - current_date).days) <= 3:
+                        print(f"✔ Meet on {parsed_date} is within 3 days")
+        
+                except ValueError:
                     continue
 
                 link_cell = row.find('td', class_='name')
