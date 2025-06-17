@@ -59,38 +59,33 @@ def collect_initial_data():
 
     clean_working_directory()
 
-    # Meet number collection
     meet_numbers = set()
-    current_date = datetime.now(eastern).date()  # Get current date in Eastern Time
-    
+    current_date = datetime.now(eastern).date()
+
     for state in states:
         url = f"https://{state}.milesplit.com/results"
         response = requests.get(url)
         if response.status_code != 200:
             continue
-          
+
         soup = BeautifulSoup(response.text, 'html.parser')
         table = soup.find('table', class_='meets order-table table results')
-        
+
         if table:
             for row in table.find_all('tr'):
                 date_cell = row.find('td', class_='date')
                 if not date_cell:
                     continue
-        
-                # Try end date first, fallback to start date
+
                 date_span = date_cell.find('span', class_='end') or date_cell.find('span', class_='start')
                 if not date_span:
                     continue
-        
+
                 try:
-                    date_text = date_span.text.strip()  # e.g., "6/14"
+                    date_text = date_span.text.strip()
                     parsed_date = datetime.strptime(date_text, "%m/%d").replace(year=current_date.year).date()
-        
-                    # Keep only meets within 3 days (past or future)
                     if abs((parsed_date - current_date).days) <= 30:
                         print(f"✔ Meet on {parsed_date} is within 3 days")
-        
                 except ValueError:
                     continue
 
@@ -100,23 +95,22 @@ def collect_initial_data():
                     if a_tag:
                         match = re.search(r'meets/(\d+)-', a_tag['href'])
                         if match:
-                             meet_number = match.group(1)
-                             meet_numbers.add(meet_number)
-                             print(f"Collected meet number: {meet_number}")
-        
+                            meet_number = match.group(1)
+                            meet_numbers.add(meet_number)
+                            print(f"Collected meet number: {meet_number}")
+
         time.sleep(2)
 
     with open(os.path.join(script_dir, 'meet-numbers'), 'w') as f:
         f.writelines(f"{m}\n" for m in sorted(meet_numbers))
 
-    # Meet data processing
     meet_data_dir = os.path.join(script_dir, 'meet-data')
     os.makedirs(meet_data_dir, exist_ok=True)
-    
+
     meet_numbers_path = os.path.join(script_dir, 'meet-numbers')
     with open(meet_numbers_path, 'r') as f:
         meets = [line.strip() for line in f]
-    
+
     api_url_template = (
         "https://www.milesplit.com/api/v1/meets/{}/performances?"
         "ismeetpro=0&fields=id,meetId,meetName,teamId,videoId,teamName,athleteId,firstName,lastName,"
@@ -129,27 +123,27 @@ def collect_initial_data():
     for meet in meets:
         api_url = api_url_template.format(meet)
         response = requests.get(api_url)
-        
         print(f"Fetching meet {meet}... status code: {response.status_code}")
-        
+
         if response.status_code == 200:
             try:
                 data = response.json()
                 num_performances = len(data.get("data", []))
                 print(f"  → Found {num_performances} performances for meet {meet}")
-            except json.JSONDecodeError as e:
-                print(f"  → Error decoding JSON for meet {meet}: {e}")
-                continue
-            
-            with open(os.path.join(meet_data_dir, f"{meet}.json"), 'w') as f:
-                f.write(response.text)
+
+                output_path = os.path.join(meet_data_dir, f"{meet}.json")
+                with open(output_path, 'w') as f:
+                    json.dump(data, f, indent=2)
+
+                print(f"📁 Successfully saved: {output_path}")
+            except Exception as e:
+                print(f"❌ Error parsing or saving meet {meet}: {e}")
         else:
-            print(f"  → Failed to fetch meet {meet}: {response.status_code}")
-        
+            print(f"⚠️ Failed to fetch meet {meet}: status {response.status_code}")
+
         time.sleep(1)
 
-
-# ✅ Athlete ID extraction
+    # ✅ Athlete ID extraction
     athlete_ids = set()
     for meet_file in glob.glob(os.path.join(meet_data_dir, '*.json')):
         try:
@@ -170,8 +164,8 @@ def collect_initial_data():
 
     with open(os.path.join(script_dir, 'athlete-numbers'), 'w') as f:
         f.writelines(f"{id}\n" for id in sorted(athlete_ids))
-    print(f"✅ Total athletes saved: {len(athlete_ids)}")
 
+    print(f"✅ Total athletes saved: {len(athlete_ids)}")
 
 # ========================
 # Sharded Processing
