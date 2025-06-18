@@ -84,7 +84,7 @@ def collect_initial_data():
                 try:
                     date_text = date_span.text.strip()
                     parsed_date = datetime.strptime(date_text, "%m/%d").replace(year=current_date.year).date()
-                    if abs((parsed_date - current_date).days) <= 1:
+                    if abs((parsed_date - current_date).days) <= 30:
                         print(f"✔ Meet on {parsed_date} is within 3 days")
                 except ValueError:
                     continue
@@ -133,8 +133,10 @@ def collect_initial_data():
 
                 output_path = os.path.join(meet_data_dir, f"{meet}.json")
                 with open(output_path, 'w') as f:
-                    json.dump(data, f, indent=2)
-
+                  json.dump(data, f, indent=2)
+                  f.flush()
+                  os.fsync(f.fileno())  # ✅ Force flush to disk
+                  
                 print(f"📁 Successfully saved: {output_path}")
             except Exception as e:
                 print(f"❌ Error parsing or saving meet {meet}: {e}")
@@ -145,7 +147,7 @@ def collect_initial_data():
 
     # ✅ Athlete ID extraction
     athlete_ids = set()
-    for meet_file in glob.glob(os.path.join(meet_data_dir, '*.json')):
+    for meet_file in sorted(glob.glob(os.path.join(meet_data_dir, '*.json'))):
         try:
             with open(meet_file, 'r') as f:
                 data = json.load(f)
