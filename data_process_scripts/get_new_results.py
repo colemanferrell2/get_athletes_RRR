@@ -84,11 +84,13 @@ def collect_initial_data():
         try:
             date_text = date_span.text.strip()
             parsed_date = datetime.strptime(date_text, "%m/%d").replace(year=current_date.year).date()
-            if abs((parsed_date - current_date).days) > 7:
-                continue  # ❌ Skip meets too far from today
+            print(f"🗓 Found meet date: {parsed_date} (delta = {(parsed_date - current_date).days} days)")
+            if abs((parsed_date - current_date).days) > 30:
+                continue  # ❌ Skip meet too far from today
         
             print(f"✔ Meet on {parsed_date} is within 30 days")
         
+            # ✅ Only collect meet numbers if the date passes
             link_cell = row.find('td', class_='name')
             if link_cell:
                 a_tag = link_cell.find('a', href=True)
@@ -98,8 +100,10 @@ def collect_initial_data():
                         meet_number = match.group(1)
                         meet_numbers.add(meet_number)
                         print(f"Collected meet number: {meet_number}")
+        
         except ValueError:
             continue
+
 
 
         time.sleep(2)
