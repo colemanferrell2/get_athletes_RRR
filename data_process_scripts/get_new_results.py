@@ -84,7 +84,7 @@ def collect_initial_data():
                 try:
                     date_text = date_span.text.strip()
                     parsed_date = datetime.strptime(date_text, "%m/%d").replace(year=current_date.year).date()
-                    if abs((parsed_date - current_date).days) <= 10:
+                    if abs((parsed_date - current_date).days) <= 30:
                         print(f"✔ Meet on {parsed_date} is within 3 days")
                 except ValueError:
                     continue
@@ -175,65 +175,76 @@ def collect_initial_data():
 def process_shard():
     # Athlete metadata processing
     with open(os.path.join(script_dir, 'athlete-numbers'), 'r') as f:
-        all_athletes = [line.strip() for line in f]
-    print("List of all athletes:", all_athletes)
+        all_athletes = [line.strip() for line in f if line.strip()]
+
+    if args.shard >= args.num_shards:
+        raise ValueError(f"Invalid shard index {args.shard} for num_shards={args.num_shards}")
 
     athletes = [
         athlete_id for i, athlete_id in enumerate(all_athletes)
         if i % args.num_shards == args.shard
     ]
 
+    print(f"✅ Shard {args.shard}/{args.num_shards} assigned {len(athletes)} athletes")
+
+    if not athletes:
+        print("⚠️ No athletes assigned to this shard. Exiting.")
+        return
+
     athlete_dir = os.path.join(script_dir, 'athlete-metadata')
     os.makedirs(athlete_dir, exist_ok=True)
 
-    for athlete_id in athletes:
-        athlete_url = (
-            "https://www.milesplit.com/api/v1/athletes/"
-            f"{athlete_id}/stats?ismeetpro=0&fields="
-            "id,meetId,meetName,teamId,videoId,teamName,athleteId,firstName,lastName,gender,genderName,"
-            "divisionId,divisionName,meetResultsDivisionId,resultsDivisionId,ageGroupName,gradYear,"
-            "eventName,eventCode,eventDistance,eventGenreOrder,round,roundName,heat,units,mark,place,"
-            "windReading,profileUrl,teamProfileUrl,performanceVideoId,teamLogo,statusCode,dateStart,"
-            "dateEnd,season,seasonYear,venueCity,venueState,venueCountry,siteSubdomain,slug,nickname,"
-            "birthDate,birthYear,note,honors,specialty,city,state,country,isProfilePhoto,hide,usatf,"
-            "tfrrsId,lastTouch,profilePhotoUrl"
-        )
-
-        print(f"🔍 Processing athlete ID: {athlete_id}")
-        response = requests.get(athlete_url)
-
-        if response.status_code != 200:
-            print(f"❌ HTTP {response.status_code} for athlete ID {athlete_id}")
-            continue
-
+    for idx, athlete_id in enumerate(athletes):
         try:
-            response_json = response.json()
-        except json.JSONDecodeError:
-            print(f"❌ JSON decode error for athlete ID {athlete_id}")
+            print(f"[{idx+1}/{len(athletes)}] 🔍 Processing athlete ID: {athlete_id}")
+
+            athlete_url = (
+                f"https://www.milesplit.com/api/v1/athletes/{athlete_id}/stats?"
+                "ismeetpro=0&fields=id,meetId,meetName,teamId,videoId,teamName,athleteId,firstName,"
+                "lastName,gender,genderName,divisionId,divisionName,meetResultsDivisionId,"
+                "resultsDivisionId,ageGroupName,gradYear,eventName,eventCode,eventDistance,"
+                "eventGenreOrder,round,roundName,heat,units,mark,place,windReading,profileUrl,"
+                "teamProfileUrl,performanceVideoId,teamLogo,statusCode,dateStart,dateEnd,season,"
+                "seasonYear,venueCity,venueState,venueCountry,siteSubdomain,slug,nickname,birthDate,"
+                "birthYear,note,honors,specialty,city,state,country,isProfilePhoto,hide,usatf,tfrrsId,"
+                "lastTouch,profilePhotoUrl"
+            )
+
+            response = requests.get(athlete_url, timeout=10)
+            print(f"→ Status code: {response.status_code}")
+
+            if response.status_code != 200:
+                print(f"❌ HTTP {response.status_code} for athlete ID {athlete_id}")
+                continue
+
+            try:
+                response_json = response.json()
+            except json.JSONDecodeError:
+                print(f"❌ JSON decode error for athlete ID {athlete_id}")
+                continue
+
+            athlete = response_json.get('_embedded', {}).get('athlete', {})
+            if not athlete:
+                print(f"⚠️ No athlete object found in response for {athlete_id}")
+                continue
+
+            if "gradYear" not in athlete:
+                print(f"⚠️ Missing gradYear for athlete {athlete_id}")
+
+            output_content = {
+                "data": response_json.get('data', []),
+                "athlete": athlete
+            }
+            output_file = os.path.join(athlete_dir, f"{athlete_id}.json")
+            with open(output_file, 'w') as f:
+                json.dump(output_content, f, indent=4)
+
+            print(f"✅ Saved athlete {athlete_id}")
+            time.sleep(1)
+
+        except Exception as e:
+            print(f"❌ Exception for athlete {athlete_id}: {e}")
             continue
-
-        # Check if athlete data exists
-        athlete = response_json.get('_embedded', {}).get('athlete', {})
-        if not athlete:
-            print(f"⚠️ No athlete object found in response for {athlete_id}")
-            continue
-
-        # Optional: check for missing key fields
-        if "gradYear" not in athlete:
-            print(f"⚠️ Missing gradYear for athlete {athlete_id}")
-
-        # Save file
-        output_content = {
-            "data": response_json.get('data', []),
-            "athlete": athlete
-        }
-        output_file = os.path.join(athlete_dir, f"{athlete_id}.json")
-        with open(output_file, 'w') as f:
-            json.dump(output_content, f, indent=4)
-
-        print(f"✅ Saved athlete {athlete_id}")
-
-        time.sleep(1)
 
     # Team data processing
     team_ids = set()
