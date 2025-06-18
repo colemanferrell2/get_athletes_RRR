@@ -27,14 +27,21 @@ jobs:
       - name: Collect initial data
         run: python data_process_scripts/get_new_results.py --mode collect  # Added mode
         
-      - name: Commit meet-data to public repo
+      - name: Push meet-data to private repo
         run: |
+          git clone https://x-access-token:${{ secrets.PRIVATE_REPO_PAT }}@github.com/colemanferrell2/Runner-Recruiting-Resource.git private_repo
+
+          mkdir -p private_repo/data_process_scripts/
+          cp -r data_process_scripts/meet-data private_repo/data_process_scripts/
+
+          cd private_repo
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git pull origin main  # Ensure it's up to date
+
           git add data_process_scripts/meet-data
-          git commit -m "Update meet-data files" || echo "No changes to commit"
-          git push origin HEAD:main
+          git commit -m "Update meet-data after collect" || echo "No changes"
+          git push https://x-access-token:${{ secrets.PRIVATE_REPO_PAT }}@github.com/colemanferrell2/Runner-Recruiting-Resource.git HEAD:master
+
 
       - name: Save timestamp
         id: timestamp
