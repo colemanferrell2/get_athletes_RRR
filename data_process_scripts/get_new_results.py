@@ -76,37 +76,36 @@ def collect_initial_data():
                 date_cell = row.find('td', class_='date')
                 if not date_cell:
                     continue
-
+        
                 date_span = date_cell.find('span', class_='end') or date_cell.find('span', class_='start')
                 if not date_span:
                     continue
-
-        try:
-            date_text = date_span.text.strip()
-            parsed_date = datetime.strptime(date_text, "%m/%d").replace(year=current_date.year).date()
-            print(f"🗓 Found meet date: {parsed_date} (delta = {(parsed_date - current_date).days} days)")
-            if abs((parsed_date - current_date).days) > 30:
-                continue  # ❌ Skip meet too far from today
         
-            print(f"✔ Meet on {parsed_date} is within 30 days")
+                try:
+                    date_text = date_span.text.strip()
+                    parsed_date = datetime.strptime(date_text, "%m/%d").replace(year=current_date.year).date()
+                    print(f"🗓 Found meet date: {parsed_date} (delta = {(parsed_date - current_date).days} days)")
         
-            # ✅ Only collect meet numbers if the date passes
-            link_cell = row.find('td', class_='name')
-            if link_cell:
-                a_tag = link_cell.find('a', href=True)
-                if a_tag:
-                    match = re.search(r'meets/(\d+)-', a_tag['href'])
-                    if match:
-                        meet_number = match.group(1)
-                        meet_numbers.add(meet_number)
-                        print(f"Collected meet number: {meet_number}")
+                    if abs((parsed_date - current_date).days) > 30:
+                        continue  # ❌ Skip meet too far from today
         
-        except ValueError:
-            continue
+                    print(f"✔ Meet on {parsed_date} is within 30 days")
+        
+                    # ✅ Only collect meet numbers if the date passes
+                    link_cell = row.find('td', class_='name')
+                    if link_cell:
+                        a_tag = link_cell.find('a', href=True)
+                        if a_tag:
+                            match = re.search(r'meets/(\d+)-', a_tag['href'])
+                            if match:
+                                meet_number = match.group(1)
+                                meet_numbers.add(meet_number)
+                                print(f"Collected meet number: {meet_number}")
+                except ValueError:
+                    continue
+        
+        time.sleep(2)  # ✅ inside the row loop, not after the table
 
-
-
-        time.sleep(2)
 
     with open(os.path.join(script_dir, 'meet-numbers'), 'w') as f:
         f.writelines(f"{m}\n" for m in sorted(meet_numbers))
