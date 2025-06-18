@@ -46,6 +46,12 @@ jobs:
       - name: Save timestamp
         id: timestamp
         run: echo "now=$(date +%s)" >> $GITHUB_OUTPUT
+      
+      - name: Upload athlete-numbers
+        uses: actions/upload-artifact@v4
+        with:
+          name: athlete-numbers
+          path: data_process_scripts/athlete-numbers
 
   fetch-athletes:
     needs: get-new-results
@@ -63,6 +69,12 @@ jobs:
 
       - name: Install dependencies
         run: pip install -r requirements.txt
+
+      - name: Download athlete-numbers
+        uses: actions/download-artifact@v4
+        with:
+          name: athlete-numbers
+          path: data_process_scripts/
 
       - name: Process shard ${{ matrix.shard }}
         run: python data_process_scripts/get_new_results.py --mode process --shard ${{ matrix.shard }} --num_shards 20  # Added mode
