@@ -84,7 +84,7 @@ def collect_initial_data():
                 try:
                     date_text = date_span.text.strip()
                     parsed_date = datetime.strptime(date_text, "%m/%d").replace(year=current_date.year).date()
-                    if abs((parsed_date - current_date).days) <= 30:
+                    if abs((parsed_date - current_date).days) <= 3:
                         print(f"✔ Meet on {parsed_date} is within 3 days")
                 except ValueError:
                     continue
