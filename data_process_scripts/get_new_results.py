@@ -84,7 +84,7 @@ def collect_initial_data():
         try:
             date_text = date_span.text.strip()
             parsed_date = datetime.strptime(date_text, "%m/%d").replace(year=current_date.year).date()
-            if abs((parsed_date - current_date).days) > 2:
+            if abs((parsed_date - current_date).days) > 7:
                 continue  # ❌ Skip meets too far from today
         
             print(f"✔ Meet on {parsed_date} is within 30 days")
