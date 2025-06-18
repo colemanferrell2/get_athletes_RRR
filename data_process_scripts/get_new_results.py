@@ -81,23 +81,26 @@ def collect_initial_data():
                 if not date_span:
                     continue
 
-                try:
-                    date_text = date_span.text.strip()
-                    parsed_date = datetime.strptime(date_text, "%m/%d").replace(year=current_date.year).date()
-                    if abs((parsed_date - current_date).days) <= 30:
-                        print(f"✔ Meet on {parsed_date} is within 3 days")
-                except ValueError:
-                    continue
+        try:
+            date_text = date_span.text.strip()
+            parsed_date = datetime.strptime(date_text, "%m/%d").replace(year=current_date.year).date()
+            if abs((parsed_date - current_date).days) > 2:
+                continue  # ❌ Skip meets too far from today
+        
+            print(f"✔ Meet on {parsed_date} is within 30 days")
+        
+            link_cell = row.find('td', class_='name')
+            if link_cell:
+                a_tag = link_cell.find('a', href=True)
+                if a_tag:
+                    match = re.search(r'meets/(\d+)-', a_tag['href'])
+                    if match:
+                        meet_number = match.group(1)
+                        meet_numbers.add(meet_number)
+                        print(f"Collected meet number: {meet_number}")
+        except ValueError:
+            continue
 
-                link_cell = row.find('td', class_='name')
-                if link_cell:
-                    a_tag = link_cell.find('a', href=True)
-                    if a_tag:
-                        match = re.search(r'meets/(\d+)-', a_tag['href'])
-                        if match:
-                            meet_number = match.group(1)
-                            meet_numbers.add(meet_number)
-                            print(f"Collected meet number: {meet_number}")
 
         time.sleep(2)
 
