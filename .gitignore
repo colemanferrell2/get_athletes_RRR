@@ -1,0 +1,42 @@
+# ========================================
+# Python-related
+# ========================================
+
+__pycache__/
+*.py[cod]
+*.so
+*.pyd
+*.pyo
+*.egg-info/
+*.log
+*.tmp
+
+# ========================================
+# Jupyter / Notebook / Editor files
+# ========================================
+
+.ipynb_checkpoints/
+*.swp
+*.swo
+*.DS_Store
+.vscode/
+.idea/
+
+# ========================================
+# Project-specific: auto-generated & temp
+# ========================================
+
+# Temp coordination files
+data_process_scripts/athlete-numbers
+data_process_scripts/meet-numbers
+data_process_scripts/team-numbers
+
+# Scraped/generated data
+data_process_scripts/meet-data/
+data_process_scripts/athlete-metadata/
+data_process_scripts/team-data/
+
+# Compressed artifacts (if manually downloaded)
+*.zip
+*.tar.gz
+
