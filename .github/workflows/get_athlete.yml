@@ -24,6 +24,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Clear old athlete-numbers file
+        run: rm -f data_process_scripts/athlete-numbers
+
+
       - name: Collect initial data
         run: python data_process_scripts/get_new_results.py --mode collect
 
@@ -97,17 +101,127 @@ jobs:
           git clone https://x-access-token:${{ secrets.PRIVATE_REPO_PAT }}@github.com/colemanferrell2/Runner-Recruiting-Resource.git private_repo
   
       # ⬇️ Download all shard artifacts individually
-      - name: Download athlete-metadata shards
-        run: |
-          for i in $(seq 0 19); do
-            echo "Downloading athlete-metadata-$i"
-            mkdir -p shard-$i
-            curl -L -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-              -o shard-$i.zip \
-              "https://nightly.artifacts.download/artifacts?run_id=${{ github.run_id }}&name=athlete-metadata-$i" || echo "Missing shard $i"
-            unzip -q shard-$i.zip -d shard-$i || echo "No zip to unzip for shard $i"
-            rm -f shard-$i.zip
-          done
+# ⬇️ Download all 20 athlete-metadata shard artifacts
+      - name: Download athlete-metadata-0
+        uses: actions/download-artifact@v4
+        with:
+          name: athlete-metadata-0
+          path: shard-0
+      
+      - name: Download athlete-metadata-1
+        uses: actions/download-artifact@v4
+        with:
+          name: athlete-metadata-1
+          path: shard-1
+      
+      - name: Download athlete-metadata-2
+        uses: actions/download-artifact@v4
+        with:
+          name: athlete-metadata-2
+          path: shard-2
+      
+      - name: Download athlete-metadata-3
+        uses: actions/download-artifact@v4
+        with:
+          name: athlete-metadata-3
+          path: shard-3
+      
+      - name: Download athlete-metadata-4
+        uses: actions/download-artifact@v4
+        with:
+          name: athlete-metadata-4
+          path: shard-4
+      
+      - name: Download athlete-metadata-5
+        uses: actions/download-artifact@v4
+        with:
+          name: athlete-metadata-5
+          path: shard-5
+      
+      - name: Download athlete-metadata-6
+        uses: actions/download-artifact@v4
+        with:
+          name: athlete-metadata-6
+          path: shard-6
+      
+      - name: Download athlete-metadata-7
+        uses: actions/download-artifact@v4
+        with:
+          name: athlete-metadata-7
+          path: shard-7
+      
+      - name: Download athlete-metadata-8
+        uses: actions/download-artifact@v4
+        with:
+          name: athlete-metadata-8
+          path: shard-8
+      
+      - name: Download athlete-metadata-9
+        uses: actions/download-artifact@v4
+        with:
+          name: athlete-metadata-9
+          path: shard-9
+      
+      - name: Download athlete-metadata-10
+        uses: actions/download-artifact@v4
+        with:
+          name: athlete-metadata-10
+          path: shard-10
+      
+      - name: Download athlete-metadata-11
+        uses: actions/download-artifact@v4
+        with:
+          name: athlete-metadata-11
+          path: shard-11
+      
+      - name: Download athlete-metadata-12
+        uses: actions/download-artifact@v4
+        with:
+          name: athlete-metadata-12
+          path: shard-12
+      
+      - name: Download athlete-metadata-13
+        uses: actions/download-artifact@v4
+        with:
+          name: athlete-metadata-13
+          path: shard-13
+      
+      - name: Download athlete-metadata-14
+        uses: actions/download-artifact@v4
+        with:
+          name: athlete-metadata-14
+          path: shard-14
+      
+      - name: Download athlete-metadata-15
+        uses: actions/download-artifact@v4
+        with:
+          name: athlete-metadata-15
+          path: shard-15
+      
+      - name: Download athlete-metadata-16
+        uses: actions/download-artifact@v4
+        with:
+          name: athlete-metadata-16
+          path: shard-16
+      
+      - name: Download athlete-metadata-17
+        uses: actions/download-artifact@v4
+        with:
+          name: athlete-metadata-17
+          path: shard-17
+      
+      - name: Download athlete-metadata-18
+        uses: actions/download-artifact@v4
+        with:
+          name: athlete-metadata-18
+          path: shard-18
+      
+      - name: Download athlete-metadata-19
+        uses: actions/download-artifact@v4
+        with:
+          name: athlete-metadata-19
+          path: shard-19
+
   
       # 🧩 Merge all shards into one directory
       - name: Merge athlete shard files
