@@ -1,28 +1,4 @@
 # ========================================
-# Python-related
-# ========================================
-
-__pycache__/
-*.py[cod]
-*.so
-*.pyd
-*.pyo
-*.egg-info/
-*.log
-*.tmp
-
-# ========================================
-# Jupyter / Notebook / Editor files
-# ========================================
-
-.ipynb_checkpoints/
-*.swp
-*.swo
-*.DS_Store
-.vscode/
-.idea/
-
-# ========================================
 # Project-specific: auto-generated & temp
 # ========================================
 
