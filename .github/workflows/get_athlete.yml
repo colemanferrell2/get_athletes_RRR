@@ -85,77 +85,77 @@ jobs:
           name: athlete-metadata-${{ matrix.shard }}
           path: data_process_scripts/athlete-metadata/
 
-push-athletes:
-  needs: fetch-athletes
-  runs-on: ubuntu-latest
-  steps:
-    - name: Checkout public repository
-      uses: actions/checkout@v4
-
-    - name: Clone private repository
-      run: |
-        git clone https://x-access-token:${{ secrets.PRIVATE_REPO_PAT }}@github.com/colemanferrell2/Runner-Recruiting-Resource.git private_repo
-
-    # ⬇️ Download all shard artifacts individually
-    - name: Download athlete-metadata shards
-      run: |
-        for i in $(seq 0 19); do
-          echo "Downloading athlete-metadata-$i"
-          mkdir -p shard-$i
-          curl -L -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            -o shard-$i.zip \
-            "https://nightly.artifacts.download/artifacts?run_id=${{ github.run_id }}&name=athlete-metadata-$i" || echo "Missing shard $i"
-          unzip -q shard-$i.zip -d shard-$i || echo "No zip to unzip for shard $i"
-          rm -f shard-$i.zip
-        done
-
-    # 🧩 Merge all shards into one directory
-    - name: Merge athlete shard files
-      run: |
-        mkdir -p data_process_scripts/athlete-metadata/
-        for i in $(seq 0 19); do
-          cp shard-$i/*.json data_process_scripts/athlete-metadata/ 2>/dev/null || echo "No files in shard-$i"
-        done
-
-    # 🧹 Remove old athlete files from the private repo
-    - name: Remove existing athlete-metadata folder
-      run: |
-        cd private_repo
-        git rm -rf data_process_scripts/athlete-metadata || echo "Folder already removed or missing"
-        git config user.name "github-actions[bot]"
-        git config user.email "github-actions[bot]@users.noreply.github.com"
-        git commit -m "Remove old athlete-metadata" || echo "Nothing to commit"
-
-    # 📥 Copy new files into private repo
-    - name: Copy new athlete-metadata files
-      run: |
-        mkdir -p private_repo/data_process_scripts/
-        cp -r data_process_scripts/athlete-metadata private_repo/data_process_scripts/
-
-    # 💾 Commit new data in chunks
-    - name: Commit and push in chunks
-      run: |
-        cd private_repo
-        git config user.name "github-actions[bot]"
-        git config user.email "github-actions[bot]@users.noreply.github.com"
-
-        find data_process_scripts/athlete-metadata -type f > files_to_commit.txt
-        split -l 250 files_to_commit.txt chunk_
-
-        for chunk in chunk_*; do
-          xargs -a "$chunk" git add
-          git commit -m "Update athlete-metadata chunk" || echo "No changes in this chunk"
-        done
-
-        git push https://x-access-token:${{ secrets.PRIVATE_REPO_PAT }}@github.com/colemanferrell2/Runner-Recruiting-Resource.git HEAD:master
-
-        rm chunk_* files_to_commit.txt
-
-    # 🚀 Trigger next workflow
-    - name: Trigger assign_scores workflow
-      run: |
-        curl -X POST \
-          -H "Accept: application/vnd.github.v3+json" \
-          -H "Authorization: token ${{ secrets.PRIVATE_REPO_PAT }}" \
-          https://api.github.com/repos/colemanferrell2/Runner-Recruiting-Resource/dispatches \
-          -d '{"event_type": "run-assign-scores"}'
+  push-athletes:
+    needs: fetch-athletes
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout public repository
+        uses: actions/checkout@v4
+  
+      - name: Clone private repository
+        run: |
+          git clone https://x-access-token:${{ secrets.PRIVATE_REPO_PAT }}@github.com/colemanferrell2/Runner-Recruiting-Resource.git private_repo
+  
+      # ⬇️ Download all shard artifacts individually
+      - name: Download athlete-metadata shards
+        run: |
+          for i in $(seq 0 19); do
+            echo "Downloading athlete-metadata-$i"
+            mkdir -p shard-$i
+            curl -L -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+              -o shard-$i.zip \
+              "https://nightly.artifacts.download/artifacts?run_id=${{ github.run_id }}&name=athlete-metadata-$i" || echo "Missing shard $i"
+            unzip -q shard-$i.zip -d shard-$i || echo "No zip to unzip for shard $i"
+            rm -f shard-$i.zip
+          done
+  
+      # 🧩 Merge all shards into one directory
+      - name: Merge athlete shard files
+        run: |
+          mkdir -p data_process_scripts/athlete-metadata/
+          for i in $(seq 0 19); do
+            cp shard-$i/*.json data_process_scripts/athlete-metadata/ 2>/dev/null || echo "No files in shard-$i"
+          done
+  
+      # 🧹 Remove old athlete files from the private repo
+      - name: Remove existing athlete-metadata folder
+        run: |
+          cd private_repo
+          git rm -rf data_process_scripts/athlete-metadata || echo "Folder already removed or missing"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git commit -m "Remove old athlete-metadata" || echo "Nothing to commit"
+  
+      # 📥 Copy new files into private repo
+      - name: Copy new athlete-metadata files
+        run: |
+          mkdir -p private_repo/data_process_scripts/
+          cp -r data_process_scripts/athlete-metadata private_repo/data_process_scripts/
+  
+      # 💾 Commit new data in chunks
+      - name: Commit and push in chunks
+        run: |
+          cd private_repo
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+  
+          find data_process_scripts/athlete-metadata -type f > files_to_commit.txt
+          split -l 250 files_to_commit.txt chunk_
+  
+          for chunk in chunk_*; do
+            xargs -a "$chunk" git add
+            git commit -m "Update athlete-metadata chunk" || echo "No changes in this chunk"
+          done
+  
+          git push https://x-access-token:${{ secrets.PRIVATE_REPO_PAT }}@github.com/colemanferrell2/Runner-Recruiting-Resource.git HEAD:master
+  
+          rm chunk_* files_to_commit.txt
+  
+      # 🚀 Trigger next workflow
+      - name: Trigger assign_scores workflow
+        run: |
+          curl -X POST \
+            -H "Accept: application/vnd.github.v3+json" \
+            -H "Authorization: token ${{ secrets.PRIVATE_REPO_PAT }}" \
+            https://api.github.com/repos/colemanferrell2/Runner-Recruiting-Resource/dispatches \
+            -d '{"event_type": "run-assign-scores"}'
