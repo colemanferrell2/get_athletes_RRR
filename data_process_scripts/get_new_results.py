@@ -180,6 +180,13 @@ def collect_initial_data():
 # Sharded Processing
 # ========================
 def process_shard():
+    athlete_dir = os.path.join(script_dir, 'athlete-metadata')
+  
+    # Clean the output directory before writing
+    if os.path.exists(athlete_dir):
+        shutil.rmtree(athlete_dir)
+    os.makedirs(athlete_dir, exist_ok=True)
+
     # Athlete metadata processing
     with open(os.path.join(script_dir, 'athlete-numbers'), 'r') as f:
         all_athletes = [line.strip() for line in f if line.strip()]
