@@ -86,8 +86,8 @@ def collect_initial_data():
                     parsed_date = datetime.strptime(date_text, "%m/%d").replace(year=current_date.year).date()
                     print(f"🗓 Found meet date: {parsed_date} (delta = {(parsed_date - current_date).days} days)")
         
-                    if abs((parsed_date - current_date).days) > 25:
-                    #if abs((parsed_date - current_date).days) <= 34 or abs((parsed_date - current_date).days) >= 46:
+                    if abs((parsed_date - current_date).days) > 26:
+                      #if abs((parsed_date - current_date).days) <= 34 or abs((parsed_date - current_date).days) >= 46:
                        continue  # ❌ Skip meet too far from today
         
                     print(f"✔ Meet on {parsed_date} is within 30 days")
